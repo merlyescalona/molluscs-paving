@@ -1,0 +1,17 @@
+# Experiment coverage:
+[100.0]
+# Locus alpha shapes:
+None
+# Individual alpha shapes:
+None
+# Locus Multipliers:
+None
+# Individual Multipliers:
+None
+# On target loci
+1
+# Off target loci
+
+# Not captured loci
+
+# Taxon decay: 

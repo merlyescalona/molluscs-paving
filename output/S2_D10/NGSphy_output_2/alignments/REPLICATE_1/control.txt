@@ -1,0 +1,13 @@
+[TYPE] NUCLEOTIDE 1
+[SETTINGS]
+[randomseed] 2548031302
+[fastaextension] fasta
+[output] FASTA
+[ancestralprint] NEW
+[MODEL] m1 // no insertions, no gamma
+[submodel] HKY 0.5 // HKY with kappa=0.5
+[statefreq]	0.25 0.25 0.25 0.25
+[TREE] ngsphytree (1_0_0:0.0,2_0_0:0.1);
+[PARTITIONS] ngsphypartition [ngsphytree m1 1800]
+[EVOLVE]
+ ngsphypartition 1 ngsphydata_1

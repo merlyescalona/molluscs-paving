@@ -1,0 +1,9 @@
+Tree file : INDELible V1.03 (best viewed cut and paste in e.g. excel)
+
+N.B. Simulation blocks with no random trees will have their trees printed for the first replicate only.
+
+     Interior node labels on the trees match ancestral sequence labels in sequence files.
+
+FILE	TREE	NTAXA	REP	PART	LENGTH	DEPTH	MAX PAIRWISE DISTANCE	TREE STRING
+
+ngsphydata_1	ngsphytree	2	1	1	0.1	0.1	0.1	(1_0_0:0.0,2_0_0:0.1)ROOT;

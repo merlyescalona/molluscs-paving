@@ -1,0 +1,49 @@
+********************************************************************************
+INDELible V1.03 by Will Fletcher : Simulation began at: Mon Mar 12 11:55:36 2018
+********************************************************************************
+
+
++----------------------------------------------------+
+| ERROR in [TREE] block ngsphytree                   |
+| Something is wrong in the getnextdepthcommand.     |
+|  Please report this and it will be promptly fixed! |
++----------------------------------------------------+
+
+
+
++----------------------------------------------------+
+| ERROR in [TREE] block ngsphytree                   |
+| Something is wrong in the getnextdepthcommand.     |
+|  Please report this and it will be promptly fixed! |
++----------------------------------------------------+
+
+
+  * Block 1 was completed in 0.000603 seconds.
+
+********************************************************************************
+
+  * Simulation completed. Whole batch took: 0.001 seconds.
+
+INDELible V1.03 Simulations completed at: Mon Mar 12 11:55:36 2018
+
+********************************************************************************
+
+
+ Original Control File 
+
+-----------------------
+
+
+[TYPE] NUCLEOTIDE 1
+[SETTINGS]
+[randomseed] 561591607
+[fastaextension] fasta
+[output] FASTA
+[ancestralprint] NEW
+[MODEL] m1 // no insertions, no gamma
+[submodel] HKY 0.5 // HKY with kappa=0.5
+[statefreq]	0.25 0.25 0.25 0.25
+[TREE] ngsphytree (1_0_0:0.0,2_0_0:0.01);
+[PARTITIONS] ngsphypartition [ngsphytree m1 1683]
+[EVOLVE]
+ ngsphypartition 1 ngsphydata_1
