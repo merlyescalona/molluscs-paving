@@ -1,0 +1,25 @@
+[general]
+path=.
+output_folder_name=NGSphy_output
+ploidy=1
+seed=2548031302
+[data]
+inputmode=1
+gene_tree_file=tree.tree
+indelible_control_file=control.txt
+[coverage]
+experiment=F:100
+[ngs-reads-art]
+amp=true
+fcov=true
+l=100
+m=250
+p=true
+q=true
+s=50
+sam=true
+ss=HS20
+[execution]
+environment = bash
+runART=on
+threads=2

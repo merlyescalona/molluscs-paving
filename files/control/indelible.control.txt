@@ -1,0 +1,62 @@
+[TYPE] CODON 1
+[SETTINGS]
+  [output] FASTA
+  [randomseed] 123456789 // To be able to reproduce the simulation
+  /* Genetic code is taken from the codon frequecy table given*/
+  /* if value is 0, then is considered a stop codon */
+[MODEL] molluscsModel1
+  [submodel] 2 0.5    // Kappa omega
+  [statefreq]
+    0.69  0.31   0.283  0.22  // TTT    TTC   TTA   TTG
+    0.109 0.204  0.281  0.064 // TCC    TCT   TCA   TCG
+    0.644 0.356  0.405  0.214 // TAT    TAC   TAA   TAG
+    0.707 0.293  0.381  1     // TGT    TGC   TGA   TGG
+
+    0.165 0.071  0.127  0.134 // CTT    CTC   CTA   CTG
+    0.297 0.474  0.124  0.105 // CCT    CCA   CCC   CCG
+    0.666 0.334  0.592  0.408 // CAT    CAC   CAA   CAG
+    0.103 0.116  0.041  0.055 // CGT    CGA   CGC   CGG
+
+    0.422 0.379  0.199  1      // ATT   ATA   ATC   ATG
+    0.27  0.164  0.469  0.097  // ACT   ACC   ACA   ACG
+    0.623 0.377  0.676  0.324  // AAT   AAC   AAA   AAG
+    0.23  0.111  0.482  0.202  // AGT   AGC   AGA   AGG
+
+    0.35  0.165  0.279  0.205  // GTT   GTC   GTA   GTG
+    0.342 0.174  0.406  0.078  // GCT   GCC   GCA   GCG
+    0.637 0.363  0.708  0.292  // GAT   GAC   GAA   GAG
+    0.296 0.134  0.429  0.141  // GGT   GGC   GGA   GGG
+
+[TREE] molluscTree1
+  (A,B)
+  [branchlengths] EQUAL
+  [treedepth] 0.01 // this is going to vary to get different diversity values
+[TREE] molluscTree2
+  (A,B)
+  [branchlengths] EQUAL
+  [treedepth] 0.05 // this is going to vary to get different diversity values
+[TREE] molluscTree3
+  (A,B)
+  [branchlengths] EQUAL
+  [treedepth] 0.1 // this is going to vary to get different diversity values
+[TREE] molluscTree4
+  (A,B)
+  [branchlengths] EQUAL
+  [treedepth] 0.2 // this is going to vary to get different diversity values
+[TREE] molluscTree5
+  (A,B)
+  [branchlengths] EQUAL
+  [treedepth] 0.25 // this is going to vary to get different diversity values
+
+[PARTITION] molluscPartition1 [molluscTree1 mollusctModel1 100000 ]
+[PARTITION] molluscPartition2 [molluscTree1 mollusctModel2 100000 ]
+[PARTITION] molluscPartition3 [molluscTree1 mollusctModel3 100000 ]
+[PARTITION] molluscPartition4 [molluscTree1 mollusctModel4 100000 ]
+[PARTITION] molluscPartition5 [molluscTree1 mollusctModel5 100000 ]
+
+[EVOLVE]
+  1 molluscData1
+  1 molluscData2
+  1 molluscData3
+  1 molluscData4
+  1 molluscData5

@@ -1,0 +1,78 @@
+[TYPE] CODON 1
+[SETTINGS]
+  [output] FASTA // In addition to the fasta file we get PHY files.
+  [fastaextension] fasta // In addition to the fasta file we get PHY files.
+
+  [randomseed] 123456789 // To be able to reproduce the simulation
+  /* Genetic code is taken from the codon frequecy table given*/
+  /* if value is 0, then is considered a stop codon */
+  /* Condon frequencies as 0, forced by INDELible requirement*/
+[MODEL] molluscModel1
+  [submodel] 2 0.5    // Kappa omega
+  [geneticcode] 5
+  [statefreq]
+    0.032861837405 0.014764013907 0.013478115921 0.010477687289 // TTT    TTC   TTA   TTG
+    0.005191217793 0.009715673668 0.013382864219 0.003048054484 // TCC    TCT   TCA   TCG
+    0.030671048245 0.016954803067 0              0              // TAT    TAC   TAA   TAG
+    0.033671476878 0.013954374434 0.018145449350 0.047625851312 // TGT    TGC   TGA   TGG
+
+    0.007858265466 0.003381435443 0.006048483117 0.006381864076 // CTT    CTC   CTA   CTG
+    0.014144877840 0.022574653522 0.005905605563 0.005000714388 // CCT    CCA   CCC   CCG
+    0.031718816974 0.015907034338 0.028194503977 0.019431347335 // CAT    CAC   CAA   CAG
+    0.004905462685 0.005524598752 0.001952659904 0.002619421822 // CGT    CGA   CGC   CGG
+
+    0.020098109254 0.018050197647 0.009477544411 0.047625851312 // ATT   ATA   ATC   ATG
+    0.012858979854 0.007810639615 0.022336524265 0.004619707577 // ACT   ACC   ACA   ACG
+    0.029670905367 0.017954945945 0.032195075487 0.015430775825 // AAT   AAC   AAA   AAG
+    0.010953945802 0.005286469496 0.022955660332 0.009620421965 // AGT   AGC   AGA   AGG
+
+    0.016669047959 0.007858265466 0.013287612516 0.009763299519 // GTT   GTC   GTA   GTG
+    0.016288041149 0.008286898128 0.019336095633 0.003714816402 // GCT   GCC   GCA   GCG
+    0.030337667286 0.017288184026 0.033719102729 0.013906748583 // GAT   GAC   GAA   GAG
+    0.014097251988 0.006381864076 0.020431490213 0.006715245035 // GGT   GGC   GGA   GGG
+
+[TREE] molluscTree1
+  (A,B);
+  [branchlengths] EQUAL
+  [treedepth] 0.005 // this is going to vary to get different diversity values
+[TREE] molluscTree2
+  (A,B);
+  [branchlengths] EQUAL
+  [treedepth] 0.01 // this is going to vary to get different diversity values
+[TREE] molluscTree3
+  (A,B);
+  [branchlengths] EQUAL
+  [treedepth] 0.025 // this is going to vary to get different diversity values
+[TREE] molluscTree4
+  (A,B);
+  [branchlengths] EQUAL
+  [treedepth] 0.05 // this is going to vary to get different diversity values
+[TREE] molluscTree5
+  (A,B);
+  [branchlengths] EQUAL
+  [treedepth] 0.1 // this is going to vary to get different diversity values
+[TREE] molluscTree6
+  (A,B);
+  [branchlengths] EQUAL
+  [treedepth] 0.2 // this is going to vary to get different diversity values
+
+[TREE] tree2
+  [unrooted] 2 0.4 1.1 0.2566 0.34  // ntaxa birth death sample mut
+  [seed] 2381242
+
+[PARTITIONS] molluscPartition1 [molluscTree1 molluscModel1 10 ]
+[PARTITIONS] molluscPartition2 [molluscTree2 molluscModel1 10 ]
+[PARTITIONS] molluscPartition3 [molluscTree3 molluscModel1 10 ]
+[PARTITIONS] molluscPartition4 [molluscTree4 molluscModel1 10 ]
+[PARTITIONS] molluscPartition5 [molluscTree5 molluscModel1 10 ]
+[PARTITIONS] molluscPartition6 [molluscTree6 molluscModel1 10 ]
+[PARTITIONS] molluscPartition7 [tree2 molluscModel1 10 ]
+
+[EVOLVE]
+  molluscPartition1 1 molluscData1
+  molluscPartition2 1 molluscData2
+  molluscPartition3 1 molluscData3
+  molluscPartition4 1 molluscData4
+  molluscPartition5 1 molluscData5
+  molluscPartition6 1 molluscData6
+  molluscPartition7 1 molluscData7

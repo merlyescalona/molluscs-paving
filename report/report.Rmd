@@ -1,0 +1,354 @@
+---
+title: 'Sim-Molluscs: analysis of presence/absence variation and its correlation to heterozygosity'
+author: "Merly Escalona <merlyescalona@uvigo.es>"
+date: "May 18th, 2017"
+output:
+  html_document:
+    theme: cosmo
+    toc: yes
+  html_notebook:
+    theme: cosmo
+---
+
+```{R libraries, echo=F}
+packages<-c("ape","geiger","apTreeshape","ggplot2","gplots","RColorBrewer","knitr","phangorn","futile.logger","phytools")
+for(pkg in packages ){
+  suppressMessages(library(pkg,character.only=TRUE,quietly=TRUE))
+}
+```
+
+
+
+<ul class="nav nav-tabs">
+  <li class="active"><a href="#home" data-toggle="tab" aria-expanded="true">General Information</a></li>
+  <li class=""><a href="#sim-parameterization" data-toggle="tab" aria-expanded="false">Simulation Parameterization</a></li>
+  <li class=""><a href="#sim-data" data-toggle="tab" aria-expanded="false">Simulated data</a></li>
+</ul>
+<div id="sim-molluscs" class="tab-content">
+<!-- ####################################################################################################### -->
+<!-- ####################################################################################################### -->
+<!-- ####################################################################################################### -->
+<!-- ####################################################################################################### -->
+<!-- ####################################################################################################### -->
+<div class="tab-pane fade active in" id="home">
+# Introduction
+
+This simulations are being made to analyze if there is any effect of the heterozygosity
+
+## Objectives
+
+
+species
+
+# Simulation process
+
+The simulation process starts with the generation of sequences from trees. These
+will be done with `INDELible` [[1]](#fletcher2009). Afterwards, next-generation
+sequencing (NGS) reads will be generated from such sequences, this will be done with the
+NGS simulator `ART` [[2]](#huang2012). The later process will be parameterized
+with available empirical datasets, get NGS data quality as close to the original datasets
+as possible.
+
+## `INDELible`
+
+`INDELible` generates nucleotide, amino acid and codon sequences data by simulating
+insertions and deletions (indels) as well as substitutions. Indels are simulated
+under several models of indel-length distribution. The program implements a rich
+repertoire of substitution models, the general unrestricted model and nonstationary
+nonhomogeneous models of nucleotide substitution, mixture, and partition models that account for
+heterogeneity among sites, and codon models that allow the nonsynonymous/synonymous
+substitution rate ratio to vary among sites and branches.
+
+In order to generate data from `INDELible`, it is required to set up a configuration/control file.
+While the manual of INDELible can be foud [here](http://abacus.gene.ucl.ac.uk/software/indelible/manual/) and
+tutorials for its usage can be found  [here](http://abacus.gene.ucl.ac.uk/software/indelible/tutorial/),
+shown below there is a small example of control file.
+
+```
+// It is useful to know that anything on a line after two forward slashes is ignored.
+/*
+   Another useful thing to know is that anything after a forward slash and star
+   is ignored until INDELible sees a star followed by a forward slash later on.
+*/     
+[TYPE] AMINOACID 2	//  EVERY control file must begin with a [TYPE] command.
+			//  The number after "AMINOACID" can be 1 or 2 and chooses the
+			//  algorithm that INDELible uses (see manuscript). Both give
+			//  identical results but in some cases one is quicker.
+			//  Other blocks and commands following this statement
+			//  can come in any order you like.
+[MODEL]    modelname         //  Evolutionary models are defined in [MODEL] blocks.
+  [submodel] WAG             //  Here the substitution model is simply set as WAG.
+  [indelmodel]  POW  1.7 500 //  Power law insertion/deletion length distribution (a=1.7)
+  [indelrate]   0.1          //  insertion rate = deletion rate = 0.1
+                             //  relative to average substitution rate of 1.   
+[TREE] treename  (A:0.1,B:0.1);        //  User trees are defined here
+[PARTITIONS] partitionname             //  [PARTITIONS] blocks say which models go with
+  [treename modelname 1000]            //  which trees and define the length of the
+                                       //  sequence generated at the root (1000 here).
+[EVOLVE] partitionname 100 outputname  //  This will generate 100 replicate datasets
+                                       //  from the [PARTITIONS] block named above.
+// The true alignment will be output in a file named outputname_TRUE.phy
+// The unaligned sequences will be output in a file named outputname.fas
+// To learn how to implement more complicated simulations (or different
+// models) please consult the manual or the other example control files.
+```
+
+## `ART`
+
+ART is a set of simulation tools to generate synthetic next-generation sequencing
+reads. ART simulates sequencing reads by mimicking real sequencing process with
+empirical error models or quality profiles summarized from large recalibrated
+sequencing data. ART can also simulate reads using user own read error model or
+quality profiles. ART supports simulation of single-end, paired-end/mate-pair
+reads of three major commercial next-generation sequencing platforms:
+Illumina's Solexa, Roche's 454 and Applied Biosystems' SOLiD. ART can be used to
+test or benchmark a variety of method or tools for next-generation sequencing data
+analysis, including read alignment, de novo assembly, SNP and structure variation discovery.
+ART outputs reads in the FASTQ format, and alignments in the ALN format.
+ART can also generate alignments in the SAM alignment or UCSC BED file format.
+
+Simple ART usages and examples are given below.
+
+- Single-end reads:
+    ```
+    art_illumina [options] -i <INPUT_SEQ_FILE> -l <READ_LEN> -f <FOLD_COVERAGE> -o <OUTPUT_FILE_PREFIX>
+    ```
+    - Example:    
+    ```
+    art_illumina -sam -i seq_reference.fa -l 50 -f 10 -o ./outdir/dat_single_end
+    ```
+- Paired-end reads:
+    ```
+    art_illumina [options] -i <INPUT_SEQ_FILE> -l <READ_LEN> -f <FOLD_COVERAGE> -o <OUTPUT_FILE_PREFIX> -m <MEAN_FRAG_LEN> -s <STD_DE>
+    ```
+    - Example:   `
+    ```
+    art_illumina -p -sam -i seq_reference.fa -l 50 -f 20 -m 200 -s 10 -o d./outdir/dat_paired_end
+    ```
+- Mate-pair reads:
+    ```
+    art_illumina [options] -i <INPUT_SEQ_FILE> -l <READ_LEN> -f <FOLD_COVERAGE> -o <OUTPUT_FILE_PREFIX> -m <MEAN_FRAG_LEN> -s <STD_DE>
+    ```
+    - Example:    
+    ```
+    art_illumina -mp -sam -i seq_reference.fa -l 50 -f 20 -m 2050 -s 50 -o d./outdir/dat_paired_end
+    ```
+<!-- ###  
+No hotspots
+play with tree height = mutation rate
+let hotspot have a value that's depending on the mutation rate. -->
+
+
+</div>
+<!-- ####################################################################################################### -->
+<!-- ####################################################################################################### -->
+<!-- ####################################################################################################### -->
+<!-- ####################################################################################################### -->
+<!-- ####################################################################################################### -->
+<div class="tab-pane fade" id="sim-parameterization">
+# Parameterization
+
+## Trees
+
+For the purpose of the simulation the tree is given and contains only two (`2`)
+species. The important parameter to vary within trees is the tree depth.
+Tree used, for all simulation scenarios will be:
+
+```{R, echo=F}
+treedata="(A,B);"
+tree=read.tree(text=treedata)
+plotTree(tree,mar=c(4.1,4.1,1.1,1.1),
+  lwd=3, ftype="i", ylim=c(0,4)
+  )
+```
+
+Corresponding to the Newick tree:
+
+```
+(A,B);
+```
+
+### **Parameters selected**
+
+We are going to handle six (`6`) tree scenarios, where branch lengths are equal
+but the tree depth varies within these values:
+
+|           | Tree 1 | Tree 2 | Tree 3 | Tree 4 | Tree 5 | Tree 6 |
+|-----------|--------|--------|--------|--------|--------|--------|
+|Tree Depth | 0.005  | 0.01   |  0.025 | 0.05   | 0.1    |  0.2   |
+
+## Sequences  and codon usage
+
+While is possible to generate nucleotide, codon and aminoacid sequences. We are interested in the generation of **codon** sequences. So, we then followed the
+available codon models.
+
+
+- **`[submodel] ECMunrest`** for the empirical unrestricted model.
+- **`[submodel] ECMrest`** for the empirical restricted model.
+- Otherwise a codon model with K discrete omega categories is defined using:
+    - M3 (discrete)                       
+    ```
+    // p(K-1)=1-p(K-2)-...-p1-p0
+    [submodel]  kappa
+              p0  p1  ...  p(K-2)          // proportions
+              ω0  ω1  ...  ω(K-2)  ω(K-1)  // omegas
+    ```
+    -  All other models from M0-M13 can be represented in this M3 format.
+        - M0 (one-ratio):  `[submodel]  kappa  &omega0       //  p0=1`
+        - M1 (neutral):    `[submodel]  kappa  p0  ω0  1     //  ω1=1;  p1=1-p0`
+        - M2 (selection):  `[submodel]  kappa  p0  p1  ω0  1   ω2   //  ω1=1;  p2=1-p1-p0`
+        - M4 (freqs) with `K=5`:
+        ```
+        [submodel]  kappa  
+              p0  p1         p2         p3      //  p4=1-p3-p2-p1-p0
+              0   0.333333   0.666666   1   3   //  ω0,  ω1,  ω2,  ω3,  ω4
+        ```
+
+### **Parameters selected**
+
+We decided to used the M0 model, with the following parameters:
+
+- $\kappa = 2$
+- $\omega = 0.5$
+
+
+<div class="panel panel-danger">
+<div class="panel-heading">
+<h3 class="panel-title">EXPLANATION: TO ASK DAVID</h3>
+</div>
+<div class="panel-body">
+- why were these parameters chosen?
+</div>
+</div>
+
+
+## Codon frequencies
+As we are able to determine the parameters used to model the codon sequence generation,
+we can also add the codon frequency. Codon frequencies are changed from being equal
+by listing 64 numbers (separated be white space) after the command `[statefreq]`.. Keeping in mind that stop codons for this genetic code have a value of zero.
+
+For example:
+```
+[MODEL] M0example4  
+  [submodel]     2.5  0.5                  //  kappa=2.5, w=0.5
+  [statefreq]  
+    0.016133 0.014626 0.012261 0.019123    //  TTT  TTC  TTA  TTG
+    0.008365 0.007583 0.006357 0.009915    //  TCT  TCC  TCA  TCG
+    0.013290 0.012048 0        0           //  TAT  TAC  TAA  TAG
+    0.009947 0.009018 0        0.011790    //  TGT  TGC  TGA  TGG
+
+    0.019297 0.017494 0.014665 0.022873    //  CTT  CTC  CTA  CTG
+    0.010005 0.009070 0.007604 0.011859    //  CCT  CCC  CCA  CCG
+    0.015896 0.014410 0.012080 0.018841    //  CAT  CAC  CAA  CAG
+    0.011898 0.010786 0.009042 0.014102    //  CGT  CGC  CGA  CGG
+
+    0.030728 0.027857 0.023353 0.036422    //  ATT  ATC  ATA  ATG  
+    0.015932 0.014443 0.012108 0.018884    //  ACT  ACC  ACA  ACG  
+    0.025312 0.022947 0.019236 0.030002    //  AAT  AAC  AAA  AAG  
+    0.018945 0.017175 0.014398 0.022456    //  AGT  AGC  AGA  AGG
+
+    0.024518 0.022227 0.018633 0.029061    //  GTT  GTC  GTA  GTG
+    0.012712 0.011524 0.009661 0.015068    //  GCT  GCC  GCA  GCG  
+    0.020196 0.018309 0.015349 0.023938    //  GAT  GAC  GAA  GAG  
+    0.015117 0.013704 0.011488 0.017919    //  GGT  GGC  GGA  GGG
+```
+
+It is also possible to change the genetic code by using the command `[geneticcode]`.
+
+```
+e.g. [geneticcode] 3
+```
+
+The value should be an integer 1 to 6, 9 to 16, or 21 to 24, corresponding to
+the genetic codes listed on Genbank. The value 1 (corresponding to the universal
+genetic code) is the default setting if the command is not specified. These genetic codes determine which codons are stop codons and therefore not included in the simulation. They are also used to translate codons to amino-acids for output if
+that option is chosen.  The codes listed at Genbank (in Oct. 2008)
+are given below (**`*`** represents a stop codon). Please note that some codes listed
+are identical and only differ in terms of Starts. For more info. visit Genbank.
+
+|Code | Name | Genetic code|
+|------|-------|--------------|
+| 1 | The Standard Code    | `FFLLSSSSYY**CC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG` |
+| 2 | The Vertebrate Mitochondrial Code    | `FFLLSSSSYY**CCWWLLLLPPPPHHQQRRRRIIMMTTTTNNKKSS**VVVVAAAADDEEGGGG` |
+| 3 | The Yeast Mitochondrial Code   | `FFLLSSSSYY**CCWWTTTTPPPPHHQQRRRRIIMMTTTTNNKKSSRRVVVVAAAADDEEGGGG` |
+| 4 | The Mold, Protozoan, and Coelenterate Mitochondrial. Code and the Mcoplasma/Spiroplasma Code | `FFLLSSSSYY**CCWWLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG` |
+| 5 | The Invertebrate Mitochondrial Code    | `FFLLSSSSYY**CCWWLLLLPPPPHHQQRRRRIIMMTTTTNNKKSSSSVVVVAAAADDEEGGGG` |
+| 6 | The Ciliate, Dasycladacean and Hexamita Nuclear Code   | `FFLLSSSSYYQQCC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG` |
+| 9 | The Echinoderm and Flatworm Mitochondrial Code   | `FFLLSSSSYY**CCWWLLLLPPPPHHQQRRRRIIIMTTTTNNNKSSSSVVVVAAAADDEEGGGG` |
+| 10 | The Euplotid Nuclear Code   | `FFLLSSSSYY**CCCWLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG` |
+| 11 | The Bacterial and Plant Plastid Code    | `FFLLSSSSYY**CC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG` |
+| 12 | The Alternative Yeast Nuclear Code    | `FFLLSSSSYY**CC*WLLLSPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG` |
+| 13 | The Ascidian Mitochondrial Code   | `FFLLSSSSYY**CCWWLLLLPPPPHHQQRRRRIIMMTTTTNNKKSSGGVVVVAAAADDEEGGGG` |
+| 14 | The Alternative Flatworm Mitochondrial Code   | `FFLLSSSSYYY*CCWWLLLLPPPPHHQQRRRRIIIMTTTTNNNKSSSSVVVVAAAADDEEGGGG` |
+| 15 | The Blepharisma Nuclear Code    | `FFLLSSSSYY*QCC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG` |
+| 16 | The Chlorophycean Mitochondrial Code    | `FFLLSSSSYY*LCC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG` |
+| 21 | The Trematode Mitochondrial Code    | `FFLLSSSSYY**CCWWLLLLPPPPHHQQRRRRIIMMTTTTNNNKSSSSVVVVAAAADDEEGGGG` |
+| 22 | The Scenedesmus obliquus mitochondrial Code   | `FFLLSS*SYY*LCC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG` |
+| 23 | The Thraustochytrium Mitochondrial Code   | `FF*LSSSSYY**CC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG` |
+
+- Base1: `TTTTTTTTTTTTTTTTCCCCCCCCCCCCCCCCAAAAAAAAAAAAAAAAGGGGGGGGGGGGGGGG`
+- Base2: `TTTTCCCCAAAAGGGGTTTTCCCCAAAAGGGGTTTTCCCCAAAAGGGGTTTTCCCCAAAAGGGG`
+- Base3: `TCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAG`
+
+
+### **Parameters selected**
+
+We selected th genetic code 5, corresponding to the Invertebrate Mitochondrial Code, since we are working
+with a species belonging to this group.
+
+Also, we have empirical codon frequencies:
+
+
+| Codon | Frequency | Codon |Frequency  | Codon   | Frequency | Codon | Frequency |
+|-------|-----------|-------|-----------|---------|-----------|---------|--------|
+| TGC   |	0.293     |   CAC	|   0.334   |   GCA   |  0.406    | ATA	    | 0.379  |
+| TGT   |	0.707     |   CAT	|   0.666   |   GCC   |  0.174    | ATC	    | 0.199  |
+| TTC   |	0.31      |   CTA	|   0.127   |   GCG   |  0.078    | ATT	    | 0.422  |
+| TTT   |	0.69      |   CTC	|   0.071   |   GCT   |  0.342    | AAA	    | 0.676  |
+| TTA   |	0.283     |   CTG	|   0.134   |   GAC   |  0.363    | AAG	    | 0.324  |
+| TTG   |	0.22      |   CTT	|   0.165   |   GAT   |  0.637    | ATG	    | 1      |
+| TCA   |	0.281     |   CCA	|   0.474   |   GAA   |  0.708    | AAC	    | 0.377  |
+| TCC   |	0.109     |   CCC	|   0.124   |   GAG   |  0.292    | AAT	    | 0.623  |
+| TCG   |	0.064     |   CCG	|   0.105   |   GGA   |  0.429    | AGA	    | 0.482  |
+| TCT   |	0.204     |   CCT	|   0.297   |   GGC   |  0.134    | AGG	    | 0.202  |
+| TGG   |	1         |   CAA	|   0.592   |   GGG   |  0.141    | AGC	    | 0.111  |
+| TAC   |	0.356     |   CAG	|   0.408   |   GGT   |  0.296    | AGT	    | 0.23   |
+| TAT   |	0.644     |   CGA	|   0.116   |   GTA   |  0.279    | ACA	    | 0.469  |
+| TAA   |	0.405     |   CGC	|   0.041   |   GTC   |  0.165    | ACC	    | 0.164  |
+| TAG   |	0.214     |   CGG	|   0.055   |   GTG   |  0.205    | ACG	    | 0.097  |
+| TGA   |	0.381	    |   CGT	|   0.103   |   GTT   |  0.35     | ACT	    | 0.27   |
+
+
+
+
+
+</div>
+<!-- ####################################################################################################### -->
+<!-- ####################################################################################################### -->
+<!-- ####################################################################################################### -->
+<!-- ####################################################################################################### -->
+<!-- ####################################################################################################### -->
+
+<div class="tab-pane fade" id="sim-data">
+
+</div>
+</div>
+
+
+
+
+
+
+-------------------------------------------------------------------------------
+**References**
+
+<div id="fletcher2009">
+- [1] Fletcher, W. and Yang, Z. 2009. *INDELible: a flexible simulator of biological sequence evolution.* Mol. Biol. and Evol. 2009 26(8):1879-1888
+[DOI: 10.1093/molbev/msp098](https://doi.org/10.1093/molbev/msp098)
+</div>
+
+<div id="fletcher2009">
+
+- [2] Weichun Huang  Leping Li  Jason R. Myers  Gabor T. Marth (2012) *ART: a next-generation sequencing read simulator.* Bioinformatics  28 (4): 593-594.
+[DOI: 10.1093/bioinformatics/btr708](https://doi.org/10.1093/bioinformatics/btr708)
+</div>

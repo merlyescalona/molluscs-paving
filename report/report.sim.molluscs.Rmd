@@ -1,0 +1,94 @@
+---
+title: 'sim-molluscs: Simulations for the discovery of PAV'
+author: "Merly Escalona <merlyescalona@uvigo.es>"
+date: "March 12th, 2018"
+output: 
+  html_document: 
+    theme: cosmo
+    toc: true
+    toc_depth: 4
+    number_sections: true
+    toc_float: true
+    code_folding: hide
+    fig_caption: yes
+---
+
+
+```{r setup, include=FALSE}
+packages<-c("ape","geiger","apTreeshape","gplots","RColorBrewer","knitr","phangorn","futile.logger","RSQLite","latex2exp","dplyr","knitr","kableExtra","gridExtra","grid","ggplot2","ggridges","lattice","interplot","phangorn","reshape2","ggtree")
+for(pkg in packages ){
+  suppressMessages(library(pkg,character.only=TRUE,quietly=TRUE))
+}
+
+```
+
+# Introduction
+
+# Simulations
+
+## The gene trees
+```{R The gene tree, echo=F, fig.width=10, fig.height=10}
+gt1=read.tree("../data/trees/tree.01.txt")
+gt2=read.tree("../data/trees/tree.05.txt")
+gt3=read.tree("../data/trees/tree.10.txt")
+gt4=read.tree("../data/trees/tree.20.txt")
+
+p1=ggtree(gt1) + theme_classic() + geom_tiplab(size=4) +
+    geom_text(aes(label=branch.length, x=branch), vjust=-.5,hjust=-.5, col="grey70") +
+    geom_point(aes(shape=isTip)) +
+    xlim(0,0.3)+ 
+    theme(legend.position="none") +
+    theme(
+        text = element_text(size=18),
+        axis.line.y=element_blank(),
+        axis.text.y=element_blank(),
+        axis.ticks.y=element_blank(),
+        panel.grid.major.x=element_line(color="grey20", linetype="dotted", size=.3),
+        panel.grid.major.y=element_blank()) +
+    xlab("") + ylab("") + ggtitle("Tree 1 - Diversity 0.01")
+p2=ggtree(gt2) + theme_classic() + geom_tiplab(size=4) +
+    geom_text(aes(label=branch.length, x=branch), vjust=-.5,hjust=-.5, col="grey70") +
+    geom_point(aes(shape=isTip)) +
+    xlim(0,0.3)+ 
+    theme(legend.position="none") +
+    theme(
+        text = element_text(size=18),
+        axis.line.y=element_blank(),
+        axis.text.y=element_blank(),
+        axis.ticks.y=element_blank(),
+        panel.grid.major.x=element_line(color="grey20", linetype="dotted", size=.3),
+        panel.grid.major.y=element_blank()) +
+    xlab("") + ylab("") + ggtitle("Tree 2 - Diversity 0.05")
+
+p3=ggtree(gt3) + theme_classic() + geom_tiplab(size=4) +
+    geom_text(aes(label=branch.length, x=branch), vjust=-.5,hjust=-.5, col="grey70") +
+    geom_point(aes(shape=isTip)) +
+    xlim(0,0.3)+ 
+    theme(legend.position="none") +
+    theme(
+        text = element_text(size=18),
+        axis.line.y=element_blank(),
+        axis.text.y=element_blank(),
+        axis.ticks.y=element_blank(),
+        panel.grid.major.x=element_line(color="grey20", linetype="dotted", size=.3),
+        panel.grid.major.y=element_blank()) +
+    xlab("") + ylab("") + ggtitle("Tree 3 - Diversity 0.1")
+
+p4=ggtree(gt4) + theme_classic() + geom_tiplab(size=4) +
+    geom_text(aes(label=branch.length, x=branch), vjust=-.5,hjust=-.5, col="grey70") +
+    geom_point(aes(shape=isTip)) +
+    theme(legend.position="none") +
+    xlim(0,0.3)+ 
+    theme(
+        text = element_text(size=18),
+        axis.line.y=element_blank(),
+        axis.text.y=element_blank(),
+        axis.ticks.y=element_blank(),
+        panel.grid.major.x=element_line(color="grey20", linetype="dotted", size=.3),
+        panel.grid.major.y=element_blank()) +
+    xlab("") + ylab("") + ggtitle("Tree 4 - Diversity 0.2")
+grid.arrange(p1,p2,p3,p4, nrow=4)
+
+```
+
+
